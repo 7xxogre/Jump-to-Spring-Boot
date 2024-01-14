@@ -1,22 +1,36 @@
 package com.example.main.user;
 
+import com.example.main.answer.Answer;
+import com.example.main.answer.AnswerService;
+import com.example.main.question.Question;
+import com.example.main.question.QuestionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
+    private final QuestionService questionService;
+    private final AnswerService answerService;
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, QuestionService questionService,
+                          AnswerService answerService) {
         this.userService = userService;
+        this.questionService = questionService;
+        this.answerService = answerService;
     }
 
     @GetMapping("/signup")
@@ -56,5 +70,27 @@ public class UserController {
     @GetMapping("/login")
     public String login() {
         return "login_form";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/profile")
+    public String profile(Model model, Principal principal,
+                          @RequestParam(value="question-page", defaultValue="0") int questionPage,
+                          @RequestParam(value="ans-page", defaultValue="0") int ansPage,
+                          @RequestParam(value="question-vote-page", defaultValue="0") int questionVoterPage,
+                          @RequestParam(value="ans-vote-page", defaultValue="0") int ansVoterPage) {
+        SiteUser siteUser = this.userService.getUser(principal.getName());
+        Page<Question> wroteQuestions = this.questionService.getListByAuthor(questionPage, siteUser);
+        Page<Answer> wroteAnswers = this.answerService.getListByAuthor(ansPage, siteUser);
+        Page<Question> votedQuestions = this.questionService.getListByVoter(questionVoterPage, siteUser);
+        Page<Answer> votedAnswers = this.answerService.getListByVoter(ansVoterPage, siteUser);
+
+        model.addAttribute("wrote_question_paging", wroteQuestions);
+        model.addAttribute("wrote_answer_paging", wroteAnswers);
+        model.addAttribute("voted_question_paging", votedQuestions);
+        model.addAttribute("voted_answer_paging", votedAnswers);
+        model.addAttribute("user_name", siteUser.getUsername());
+        model.addAttribute("user_email", siteUser.getEmail());
+        return "profile";
     }
 }

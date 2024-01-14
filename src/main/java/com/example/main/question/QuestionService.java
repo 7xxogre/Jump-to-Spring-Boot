@@ -3,7 +3,6 @@ package com.example.main.question;
 
 import com.example.main.DataNotFoundException;
 import com.example.main.answer.Answer;
-import com.example.main.answer.AnswerRepository;
 import com.example.main.user.SiteUser;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +50,17 @@ public class QuestionService {
         };
     }
 
+    public Specification<Question> hasVoter(SiteUser siteUser) {
+        return new Specification<Question>() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Predicate toPredicate(Root<Question> q, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                query.distinct(true);
+                return cb.isMember(siteUser, q.get("voter"));
+            }
+        };
+    }
 
     public List<Question> getList() {
         return this.questionRepository.findAll();
@@ -107,5 +117,20 @@ public class QuestionService {
         } else {
             throw new DataNotFoundException("question not found");
         }
+    }
+
+    public Page<Question> getListByAuthor(int page, SiteUser siteUser) {
+        List<Sort.Order> sorts = new ArrayList();
+        sorts.add(Sort.Order.desc("createDate"));
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(sorts));
+        return this.questionRepository.findByAuthor(siteUser, pageable);
+    }
+
+    public Page<Question> getListByVoter(int page, SiteUser siteUser) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createDate"));
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(sorts));
+        Specification<Question> spec = this.hasVoter(siteUser);
+        return this.questionRepository.findAll(spec, pageable);
     }
 }
