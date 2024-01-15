@@ -38,8 +38,6 @@ public class UserController {
         return "signup_form";
     }
 
-
-
     @PostMapping("/signup")
     public String signup(@Valid UserCreateForm userCreateForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -74,7 +72,7 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
-    public String profile(Model model, Principal principal,
+    public String profile(UserUpdateForm userUpdateForm, Model model, Principal principal,
                           @RequestParam(value="question-page", defaultValue="0") int questionPage,
                           @RequestParam(value="ans-page", defaultValue="0") int ansPage,
                           @RequestParam(value="question-vote-page", defaultValue="0") int questionVoterPage,
@@ -89,8 +87,55 @@ public class UserController {
         model.addAttribute("wrote_answer_paging", wroteAnswers);
         model.addAttribute("voted_question_paging", votedQuestions);
         model.addAttribute("voted_answer_paging", votedAnswers);
-        model.addAttribute("user_name", siteUser.getUsername());
-        model.addAttribute("user_email", siteUser.getEmail());
+        model.addAttribute("username", siteUser.getUsername());
+        model.addAttribute("userEmail", siteUser.getEmail());
         return "profile";
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/profile")
+    public String update(@Valid UserUpdateForm userUpdateForm, BindingResult bindingResult,
+                         Model model, Principal principal) {
+        SiteUser siteUser = this.userService.getUser(principal.getName());
+        Page<Question> wroteQuestions = this.questionService.getListByAuthor(0, siteUser);
+        Page<Answer> wroteAnswers = this.answerService.getListByAuthor(0, siteUser);
+        Page<Question> votedQuestions = this.questionService.getListByVoter(0, siteUser);
+        Page<Answer> votedAnswers = this.answerService.getListByVoter(0, siteUser);
+
+        model.addAttribute("wrote_question_paging", wroteQuestions);
+        model.addAttribute("wrote_answer_paging", wroteAnswers);
+        model.addAttribute("voted_question_paging", votedQuestions);
+        model.addAttribute("voted_answer_paging", votedAnswers);
+        model.addAttribute("username", siteUser.getUsername());
+        model.addAttribute("userEmail", siteUser.getEmail());
+        if (bindingResult.hasErrors()) {
+            return this.profile(userUpdateForm, model, principal, 0, 0, 0, 0);
+        }
+
+        if(!this.userService.isMatch(userUpdateForm.getOriginPassword(), siteUser.getPassword())) {
+            bindingResult.rejectValue("originPassword", "passwordInCorrect",
+                    "기존 패스워드가 일치하지 않습니다.");
+            return "profile";
+        }
+        if(!userUpdateForm.getPassword1().equals(userUpdateForm.getPassword2())) {
+            bindingResult.rejectValue("password2", "passwordInCorrect",
+                    "확인 패스워드가 일치하지 않습니다.");
+            return "profile";
+        }
+
+        try {
+            userService.update(siteUser, userUpdateForm.getPassword1());
+        } catch(Exception e) {
+            e.printStackTrace();
+            bindingResult.reject("updateFailed", e.getMessage());
+        }
+        return "profile";
+    }
+
+//    @GetMapping("/find-account")
+//    public String findAccount(Model model) {
+//        model.addAttribute("sendConfirm", false);
+//        model.addAttribute("userEmail", "");
+//        return "find_account";
+//    }
 }

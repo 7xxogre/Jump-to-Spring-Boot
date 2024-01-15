@@ -3,14 +3,30 @@
     <h2 class="border-bottom py-2" >내 정보</h2>
     <div class="card my-3">
         <div class="card-body">
-            <div class="mb-3">
-                <label class="form-label">사용자 ID</label>
-                <input type="text" th:value="${user_name}" class="form-control" readonly>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">이메일</label>
-                <input type="email" th:value="${user_email}" class="form-control" readonly>
-            </div>
+            <form th:action="@{/user/profile}" th:object="${userUpdateForm}" method="post">
+                <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">사용자 ID</label>
+                    <input type="text" th:value="${username}" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">이메일</label>
+                    <input type="email" th:value="${userEmail}" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="originPassword" class="form-label">기존 비밀번호</label>
+                    <input type="password" th:field="*{originPassword}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="password_1" class="form-label">새 비밀번호</label>
+                    <input type="password" th:field="*{password1}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="password_2" class="form-label">새 비밀번호 확인</label>
+                    <input type="password" th:field="*{password2}" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">정보 저장</button>
+            </form>
         </div>
     </div>
 
@@ -241,3 +257,4 @@
         </div>
     </div>
 </div>
+</html>
