@@ -48,4 +48,13 @@ public class UserService {
     public boolean isMatch(String rawPassword, String encodedPassword) {
         return this.passwordEncoder.matches(rawPassword, encodedPassword);
     }
+
+    public SiteUser getUserByEmail(String email) {
+        Optional<SiteUser> siteUser = this.userRepository.findByEmail(email);
+        if (siteUser.isPresent()) {
+            return siteUser.get();
+        } else {
+            throw new DataNotFoundException("Email not found!!");
+        }
+    }
 }
