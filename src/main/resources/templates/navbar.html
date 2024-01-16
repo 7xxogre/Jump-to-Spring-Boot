@@ -18,10 +18,10 @@
             </ul>
         </div>
     </div>
-    <table class="table">
+    <table style="background-color: transparent ">
         <thead>
             <tr class="text-center">
-                <th th:each="category, loop : ${category_list}">
+                <th th:each="category, loop : ${category_list}" style="min-width: 150px">
                     <a class="nav-link" th:href="|/category/${category.name}|" th:text="${category.name}"></a>
                 </th>
             </tr>
