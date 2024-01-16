@@ -3,6 +3,9 @@ package com.example.main.question;
 import com.example.main.answer.Answer;
 import com.example.main.answer.AnswerForm;
 import com.example.main.answer.AnswerService;
+import com.example.main.comment.Comment;
+import com.example.main.comment.CommentForm;
+import com.example.main.comment.CommentService;
 import com.example.main.user.SiteUser;
 import com.example.main.user.UserService;
 import jakarta.validation.Valid;
@@ -26,13 +29,15 @@ public class QuestionController {
     private final QuestionService questionService;
     private final UserService userService;
     private final AnswerService answerService;
+    private final CommentService commentService;
 
     @Autowired
     public QuestionController(QuestionService questionService, UserService userService,
-                              AnswerService answerService) {
+                              AnswerService answerService, CommentService commentService) {
         this.questionService = questionService;
         this.userService = userService;
         this.answerService = answerService;
+        this.commentService = commentService;
     }
 
 //    @GetMapping("/list")
@@ -53,15 +58,17 @@ public class QuestionController {
 
 
     @GetMapping(value = "/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm,
+    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm, CommentForm commentForm,
                          @RequestParam(value="ans-page", defaultValue="0") int answerPage,
                          @RequestParam(value="ans-ordering", defaultValue="time") String answerOrderMethod) {
         this.questionService.viewUp(id);
         Question question = this.questionService.getQuestion(id);
         Page<Answer> answerPaging = this.answerService.getAnswerList(question,
                                                             answerPage, answerOrderMethod);
+        List<Comment> commentList = this.commentService.getCommentList(question);
         model.addAttribute("question", question);
         model.addAttribute("ans_paging", answerPaging);
+        model.addAttribute("comment_list", commentList);
         return "question_detail";
     }
 

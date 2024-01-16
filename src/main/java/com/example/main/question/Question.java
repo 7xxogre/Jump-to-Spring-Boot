@@ -1,12 +1,12 @@
 package com.example.main.question;
 
 import com.example.main.answer.Answer;
+import com.example.main.comment.Comment;
 import com.example.main.user.SiteUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,4 +42,7 @@ public class Question {
     @Column(columnDefinition = "integer default 0")
     @NotNull
     private Integer views;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
+    private List<Comment> commentList;
 }
