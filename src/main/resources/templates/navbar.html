@@ -1,4 +1,4 @@
-<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom justify-content-between">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">SBB</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -18,4 +18,13 @@
             </ul>
         </div>
     </div>
+    <table class="table">
+        <thead>
+            <tr class="text-center">
+                <th th:each="category, loop : ${category_list}">
+                    <a class="nav-link" th:href="|/category/${category.name}|" th:text="${category.name}"></a>
+                </th>
+            </tr>
+        </thead>
+    </table>
 </nav>

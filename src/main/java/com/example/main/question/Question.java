@@ -1,6 +1,7 @@
 package com.example.main.question;
 
 import com.example.main.answer.Answer;
+import com.example.main.category.Category;
 import com.example.main.comment.Comment;
 import com.example.main.user.SiteUser;
 import jakarta.persistence.*;
@@ -41,8 +42,11 @@ public class Question {
 
     @Column(columnDefinition = "integer default 0")
     @NotNull
-    private Integer views;
+    private Integer views = 0;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
     private List<Comment> commentList;
+
+    @ManyToOne
+    private Category category;
 }

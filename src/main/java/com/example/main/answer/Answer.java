@@ -1,5 +1,6 @@
 package com.example.main.answer;
 
+import com.example.main.category.Category;
 import com.example.main.comment.Comment;
 import com.example.main.question.Question;
 import com.example.main.user.SiteUser;

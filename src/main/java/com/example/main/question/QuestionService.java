@@ -3,6 +3,7 @@ package com.example.main.question;
 
 import com.example.main.DataNotFoundException;
 import com.example.main.answer.Answer;
+import com.example.main.category.Category;
 import com.example.main.user.SiteUser;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,11 +76,12 @@ public class QuestionService {
         }
     }
 
-    public void create(String subject, String content, SiteUser siteUser) {
+    public void create(String subject, String content, Category category, SiteUser siteUser) {
         Question q = new Question();
         q.setSubject(subject);
         q.setContent(content);
         q.setAuthor(siteUser);
+        q.setCategory(category);
         q.setCreateDate(LocalDateTime.now());
         this.questionRepository.save(q);
     }
@@ -132,5 +134,12 @@ public class QuestionService {
         Pageable pageable = PageRequest.of(page, 5, Sort.by(sorts));
         Specification<Question> spec = this.hasVoter(siteUser);
         return this.questionRepository.findAll(spec, pageable);
+    }
+
+    public Page<Question> getCategoryQuestionList(Category category, int page) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createDate"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+        return this.questionRepository.findByCategory(category, pageable);
     }
 }

@@ -3,6 +3,7 @@ package com.example.main;
 import com.example.main.answer.Answer;
 import com.example.main.answer.AnswerRepository;
 import com.example.main.answer.AnswerService;
+import com.example.main.category.CategoryService;
 import com.example.main.comment.CommentService;
 import com.example.main.question.Question;
 import com.example.main.question.QuestionRepository;
@@ -31,17 +32,16 @@ class MainApplicationTests {
 	private UserService userService;
 	@Autowired
 	private CommentService commentService;
+	@Autowired
+	private CategoryService categoryService;
 
-	@Transactional
+//	@Transactional
 	@Test
 	void testJpa() {
-		List<Question> questionLst = this.questionService.getList();
-		Question question = questionLst.get(questionLst.size() - 1);
-//		SiteUser user = this.userService.create("temp", "temp@temp.com", "1234");
-		SiteUser user = this.userService.getUser("temp");
-
-		this.commentService.create("테스트 질문 댓글", question, null, user);
-		Answer answer = this.answerService.create(question, "테스트 답변", user);
-		this.commentService.create("테스트 답변 댓글", question, answer, user);
+	}
+	@Transactional
+	@Test
+	void testCategory() {
+		this.questionService.create("게시판 테스트", "테스트테스트", this.categoryService.getCategoryByName("게시판1"), userService.getUser("temp"));
 	}
 }

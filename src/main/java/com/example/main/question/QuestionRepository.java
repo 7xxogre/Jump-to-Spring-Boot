@@ -1,5 +1,6 @@
 package com.example.main.question;
 
+import com.example.main.category.Category;
 import com.example.main.question.Question;
 import com.example.main.user.SiteUser;
 import org.springframework.data.domain.Page;
@@ -17,4 +18,6 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Page<Question> findAll(Specification<Question> spec, Pageable pageable);
 
     Page<Question> findByAuthor(SiteUser siteUser, Pageable pageable);
+
+    Page<Question> findByCategory(Category category, Pageable pageable);
 }

@@ -4,6 +4,8 @@
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
+    <a th:if="${question.category != null}" th:href="@{|/category/${question.getCategory().getName()}|}"
+       class="nav-link" style="color: gray" th:text="${question.getCategory().getName()}"></a>
     <div class="card my-3">
         <div class="card-body">
             <div class="card-text" th:utext="${@commonUtil.markdown(question.content)}"></div>

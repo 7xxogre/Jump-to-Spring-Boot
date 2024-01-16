@@ -3,6 +3,8 @@ package com.example.main.question;
 import com.example.main.answer.Answer;
 import com.example.main.answer.AnswerForm;
 import com.example.main.answer.AnswerService;
+import com.example.main.category.Category;
+import com.example.main.category.CategoryService;
 import com.example.main.comment.Comment;
 import com.example.main.comment.CommentForm;
 import com.example.main.comment.CommentService;
@@ -30,14 +32,17 @@ public class QuestionController {
     private final UserService userService;
     private final AnswerService answerService;
     private final CommentService commentService;
+    private final CategoryService categoryService;
 
     @Autowired
     public QuestionController(QuestionService questionService, UserService userService,
-                              AnswerService answerService, CommentService commentService) {
+                              AnswerService answerService, CommentService commentService,
+                              CategoryService categoryService) {
         this.questionService = questionService;
         this.userService = userService;
         this.answerService = answerService;
         this.commentService = commentService;
+        this.categoryService = categoryService;
     }
 
 //    @GetMapping("/list")
@@ -53,6 +58,8 @@ public class QuestionController {
         Page<Question> paging = this.questionService.getList(page, kw);
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
+        List<Category> categoryList = this.categoryService.getAll();
+        model.addAttribute("category_list", categoryList);
         return "question_list";
     }
 
@@ -66,15 +73,19 @@ public class QuestionController {
         Page<Answer> answerPaging = this.answerService.getAnswerList(question,
                                                             answerPage, answerOrderMethod);
         List<Comment> commentList = this.commentService.getCommentList(question);
+        List<Category> categoryList = this.categoryService.getAll();
         model.addAttribute("question", question);
         model.addAttribute("ans_paging", answerPaging);
         model.addAttribute("comment_list", commentList);
+        model.addAttribute("category_list", categoryList);
         return "question_detail";
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/create")
-    public String questionCreate(QuestionForm questionForm) {
+    public String questionCreate(QuestionForm questionForm, Model model) {
+        List<Category> categoryList = this.categoryService.getAll();
+        model.addAttribute("category_list", categoryList);
         return "question_form";
     }
 
@@ -92,19 +103,23 @@ public class QuestionController {
             return "question_form";
         }
         SiteUser siteUser = this.userService.getUser(principal.getName());
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
+        Category category = this.categoryService.getCategoryByName(questionForm.getCategory());
+        System.out.println("category.getName() = " + category.getName());
+        this.questionService.create(questionForm.getSubject(), questionForm.getContent(),
+                                    category, siteUser);
         return "redirect:/question/list";
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
     public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id,
-                                 Principal principal) {
+                                 Principal principal, Model model) {
         Question question = this.questionService.getQuestion(id);
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
         }
-
+        List<Category> categoryList = this.categoryService.getAll();
+        model.addAttribute("category_list", categoryList);
         questionForm.setSubject(question.getSubject());
         questionForm.setContent(question.getContent());
         return "question_form";
