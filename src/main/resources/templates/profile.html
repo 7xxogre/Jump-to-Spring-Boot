@@ -144,6 +144,49 @@
         </div>
     </div>
 
+    <h2 class="border-bottom py-2">내 댓글</h2>
+    <div class="card my-3">
+        <!-- 댓글 시작 -->
+        <table class="table">
+            <thead class="table-dark">
+            <tr class="text-center">
+                <th style="width:70%">내용</th>
+                <th>글쓴이</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="text-center" th:each="comment, loop : ${wrote_comment_paging}">
+                <td class="text-center" th:text="${comment.content}"></td>
+                <td><span th:if="${comment.author != null}" th:text="${comment.author.username}"></span></td>
+                <td th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 페이징 처리 시작 -->
+        <div th:if="${!wrote_comment_paging.isEmpty()}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!wrote_comment_paging.hasPrevious} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?comment-page=${wrote_comment_paging.number-1}|}" th:data-page="${wrote_comment_paging.number-1}">
+                        <span>이전</span>
+                    </a>
+                </li>
+                <li th:each="page: ${#numbers.sequence(0, wrote_comment_paging.totalPages-1)}"
+                    th:if="${page >= wrote_comment_paging.number-5 and page <= wrote_comment_paging.number+5}"
+                    th:classappend="${page == wrote_comment_paging.number} ? 'active'"
+                    class="page-item">
+                    <a th:text="${page}" class="page-link" href="javascript:void(0)" th:data-page="${page}"></a>
+                </li>
+                <li class="page-item" th:classappend="${!wrote_comment_paging.hasNext} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?comment-page=${wrote_comment_paging.number+1}|}" th:data-page="${wrote_comment_paging.number+1}">
+                        <span>다음</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <h2 class="border-bottom py-2">추천한 질문</h2>
     <div class="card my-3">
         <table class="table">
