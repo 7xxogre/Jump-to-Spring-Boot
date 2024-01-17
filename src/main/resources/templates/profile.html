@@ -116,7 +116,6 @@
                        class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
                        th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
                        th:text="삭제"></a>
-
                 </div>
             </div>
         </div>
@@ -157,7 +156,9 @@
             </thead>
             <tbody>
             <tr class="text-center" th:each="comment, loop : ${wrote_comment_paging}">
-                <td class="text-center" th:text="${comment.content}"></td>
+                <td class="text-center">
+                    <a th:href="@{|/question/detail/${comment.question.id}|}" th:text="${comment.content}"></a>
+                </td>
                 <td><span th:if="${comment.author != null}" th:text="${comment.author.username}"></span></td>
                 <td th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></td>
             </tr>
