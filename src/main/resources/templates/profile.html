@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <h2 class="border-bottom py-2" >내 질문</h2>
+    <h2 class="border-bottom py-2">내 질문</h2>
     <div class="card my-3">
         <table class="table">
             <thead class="table-dark">
@@ -81,7 +81,7 @@
         </div>
     </div>
 
-    <h2 class="border-bottom py-2" >내 답변</h2>
+    <h2 class="border-bottom py-2">내 답변</h2>
     <div class="card my-3">
         <div class="card my-3" th:each="answer, loop : ${wrote_answer_paging}">
             <a th:id="|answer_${answer.id}|"></a>
@@ -144,7 +144,7 @@
         </div>
     </div>
 
-    <h2 class="border-bottom py-2" >추천한 질문</h2>
+    <h2 class="border-bottom py-2">추천한 질문</h2>
     <div class="card my-3">
         <table class="table">
             <thead class="table-dark">
@@ -196,7 +196,7 @@
         </div>
     </div>
 
-    <h2 class="border-bottom py-2" >추천한 답변</h2>
+    <h2 class="border-bottom py-2">추천한 답변</h2>
     <div class="card my-3">
         <div class="card my-3" th:each="answer, loop : ${voted_answer_paging}">
             <a th:id="|answer_${answer.id}|"></a>

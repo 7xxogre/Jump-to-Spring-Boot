@@ -3,6 +3,8 @@ package com.example.main.user;
 import com.example.main.DataNotFoundException;
 import com.example.main.answer.Answer;
 import com.example.main.answer.AnswerService;
+import com.example.main.comment.Comment;
+import com.example.main.comment.CommentService;
 import com.example.main.question.Question;
 import com.example.main.question.QuestionService;
 import jakarta.validation.Valid;
@@ -31,13 +33,17 @@ public class UserController {
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final JavaMailSender mailSender;
+    private final CommentService commentService;
+
     @Autowired
     public UserController(UserService userService, QuestionService questionService,
-                          AnswerService answerService, JavaMailSender mailSender) {
+                          AnswerService answerService, JavaMailSender mailSender,
+                          CommentService commentService) {
         this.userService = userService;
         this.questionService = questionService;
         this.answerService = answerService;
         this.mailSender = mailSender;
+        this.commentService = commentService;
     }
 
     @GetMapping("/signup")
@@ -83,12 +89,14 @@ public class UserController {
                           @RequestParam(value="question-page", defaultValue="0") int questionPage,
                           @RequestParam(value="ans-page", defaultValue="0") int ansPage,
                           @RequestParam(value="question-vote-page", defaultValue="0") int questionVoterPage,
-                          @RequestParam(value="ans-vote-page", defaultValue="0") int ansVoterPage) {
+                          @RequestParam(value="ans-vote-page", defaultValue="0") int ansVoterPage,
+                          @RequestParam(value="comment-page", defaultValue="0") int commentPage) {
         SiteUser siteUser = this.userService.getUser(principal.getName());
         Page<Question> wroteQuestions = this.questionService.getListByAuthor(questionPage, siteUser);
         Page<Answer> wroteAnswers = this.answerService.getListByAuthor(ansPage, siteUser);
         Page<Question> votedQuestions = this.questionService.getListByVoter(questionVoterPage, siteUser);
         Page<Answer> votedAnswers = this.answerService.getListByVoter(ansVoterPage, siteUser);
+        Page<Comment> wroteComments = this.commentService.getListByAuthor(commentPage, siteUser);
 
         model.addAttribute("wrote_question_paging", wroteQuestions);
         model.addAttribute("wrote_answer_paging", wroteAnswers);
@@ -96,6 +104,7 @@ public class UserController {
         model.addAttribute("voted_answer_paging", votedAnswers);
         model.addAttribute("username", siteUser.getUsername());
         model.addAttribute("userEmail", siteUser.getEmail());
+        model.addAttribute("wrote_comment_paging", wroteComments);
         return "profile";
     }
 
