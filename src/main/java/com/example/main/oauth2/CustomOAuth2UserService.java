@@ -3,6 +3,7 @@ package com.example.main.oauth2;
 import com.example.main.user.SiteUser;
 import com.example.main.user.UserService;
 import jakarta.servlet.http.HttpSession;
+import jdk.jshell.spi.ExecutionControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,18 +33,35 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-
 //        String userNameAttributeName = userRequest.getClientRegistration()
 //                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        SiteUser user = this.userService.socialLogin(registrationId,
-                (String) attributes.get("name"), (String) attributes.get("email"));
+        SiteUser user;
+        try {
+            user = this.login(registrationId, attributes);
+        } catch (ExecutionControl.NotImplementedException e) {
+            throw new RuntimeException(e);
+        }
 
         httpSession.setAttribute("user", new SessionUser(user));
-
         return new CustomOAuth2User(user.getUsername(), user.getEmail());
+    }
+    private SiteUser login(String registrationId, Map<String, Object> attributes) throws ExecutionControl.NotImplementedException {
+        if (registrationId.startsWith("google")) {
+            String name = (String) attributes.get("name");
+            String email = (String) attributes.get("email");
+
+            return this.userService.socialLogin(registrationId, name, email);
+        } else if(registrationId.startsWith("naver")) {
+            Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+            String name = (String) response.get("name");
+            String email = (String) response.get("email");
+            System.out.println("email = " + email);
+            return this.userService.socialLogin(registrationId, name, email);
+        }
+        throw new ExecutionControl.NotImplementedException("Implemented Google and Naver login only");
     }
 
     class CustomOAuth2User extends SiteUser implements OAuth2User {
